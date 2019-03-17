@@ -6,12 +6,61 @@ import numpy as nmp
 import matplotlib.pyplot as plot
 from scipy.stats import norm
 
+
+def silnia(n):
+    if n>1:
+        return n*silnia(n-1)
+    else:
+        return 1
+
+def f_bl(x,n):
+    i=0
+    y=0
+    d=2/(math.sqrt(math.pi))
+    while i<n:
+        y+=d*(((-1)**i)*(x**(2*i+1)))/((2*i+1)*silnia(i))
+        i+=1
+    return y
+
+#erf=[]
+#i=0
+##while i<1:
+    #erf.append([i,f_bl(i,9)])
+    #print(erf[x])
+    #i+=0.0005
+    #x+=1
+
+def erf_inv(z):
+    w=(math.sqrt(math.pi)/2)*(z+((math.pi*(z**3))/12)+((7*(math.pi**2)*(z**5))/480)+((127*(math.pi**3)*(z**7))/40320)+((4369*(math.pi**4)*(z**9))/5806080))
+    return w
+
+#i=0
+#tab=[]
+#cd=[]
+#while i<1:
+    #tab.append(erf_inv(i))
+    #cd.append(norm.ppf(i))
+    #i+=0.05
+#print(tab)
+#print(cd)
+
 def CDF_inversion():
     x=0.001
     res=[]
     while x<1.0:
         res.append(norm.ppf(x))
         x+=0.001
+    plot.figure()
+    plot.hist(res)
+    plot.show()
+
+def CDF_raw():
+    x=0
+    res=[]
+    while x<1:
+        res.append(math.sqrt(2)*erf_inv(2*x-1))
+        x+=0.001
+    print(res)
     plot.figure()
     plot.hist(res)
     plot.show()
@@ -65,6 +114,12 @@ def MontyPython1():
     #print("count:\n",count,len(count))
     #plot.show()
     u1=Gausspdf #all numbers
+    print(u1)
+    print("********************************************************************")
+    print(bins)
+    print("********************************************************************")
+    print(count)
+    print("********************************************************************")
     s=2.0*nmp.floor(2.0*u1)+1 #+1 is choosing side
     print("len of u1 ",len(u1)," len of s ", len(s))
     u2=bins #horizontal component of the uniform 2D random sample
@@ -83,12 +138,15 @@ def MontyPython1():
         #print("for A area")
         y[i]=u3[i]/(2.0*b)
         if x[i]<a:#a[i]
-            res.append(s[i]*x[i])
+            if x[i]>=0:
+                res.append(s[i]*x[i])
         if y[i]<norm.cdf(x[i]):
             #print("for B area")
-            res.append(s[i]*x[i])
+            if x[i]>=0:
+                res.append(s[i]*x[i])
         if fc(x[i],y[i],a,b)[1]<norm.cdf(x[i]):
-            res.append(s[i]*fc(x[i],y[i],a,b)[0])
+            if fc(x[i],y[i],a,b)[0]>=0:
+                res.append(s[i]*fc(x[i],y[i],a,b)[0])
             #print("s=",s[i],"   s[i]*fc(x[i],y[i],a,b)[0]=",s[i]*fc(x[i],y[i],a,b)[0])
         i+=1
     print("len res", len(res))
@@ -274,3 +332,6 @@ def Ziggurat():
 
 
 #print(fc(9,2,5,3))
+#MontyPython1()
+CDF_inversion()
+CDF_raw()
