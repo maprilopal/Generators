@@ -10,6 +10,11 @@ from scipy.stats import shapiro
 from scipy.stats import normaltest
 from scipy.stats import anderson
 from scipy.stats import kstest
+from scipy.stats import chi2_contingency
+from scipy.stats import chi2
+from scipy.stats import ttest_ind
+from scipy.stats import f_oneway
+
 
 class NormalGen:
     def __init__(self):
@@ -322,25 +327,78 @@ class NormalGen:
                 print('Sample looks Gaussian (fail to reject H0)')
             else:
                 print('Sample does not look Gaussian (reject H0)')
-                
+
+
+    def check_kstest(method):
+        if len(method)>2:
+            test_stat, pvalue = kstest(method, 'norm', args=(0, 1), N=len(method))
+            print("method vs. N(0, 1): KS=%.4f with p-value = %.4f." % (test_stat, pvalue))
+
+        elif len(method)==2:
+            test_stat, pvalue = kstest(method[0], 'norm', args=(0, 1), N=len(method[0]))
+            print("method vs. N(0, 1): KS=%.4f with p-value = %.4f." % (test_stat, pvalue))
+            test_stat, pvalue = kstest(method[1], 'norm', args=(0, 1), N=len(method[1]))
+            print("method vs. N(0, 1): KS=%.4f with p-value = %.4f." % (test_stat, pvalue))
+
+    def check_chi2(method,n):
+        Gausspdf=np.random.uniform(0.0,1.0,len(method))
+        count1,bins1,ignored1=plt.hist(Gausspdf,n,density=True)
+        count2,bins2,ignored2=plt.hist(method,n,density=True)
+        stat, p, dof, expected = chi2_contingency([count1,count2])
+        #print('dof=%d' % dof)
+        #print(expected)
+        # interpret test-statistic
+        prob = 0.95
+        critical = chi2.ppf(prob, dof)
+        print('probability=%.3f, critical=%.3f, stat=%.3f' % (prob, critical, stat))
+        if abs(stat) >= critical:
+            print('Dependent (reject H0)')
+        else:
+            print('Independent (fail to reject H0)')
+        # interpret p-value
+        alpha = 1.0 - prob
+        print('significance=%.3f, p=%.3f' % (alpha, p))
+        if p <= alpha:
+            print('Dependent (reject H0)')
+        else:
+            print('Independent (fail to reject H0)')
+        
+def independent_ttest(data1, data2, alpha):
+	# calculate means
+	mean1, mean2 = mean(data1), mean(data2)
+	# calculate standard errors
+	se1, se2 = sem(data1), sem(data2)
+	# standard error on the difference between the samples
+	sed = sqrt(se1**2.0 + se2**2.0)
+	# calculate the t statistic
+	t_stat = (mean1 - mean2) / sed
+	# degrees of freedom
+	df = len(data1) + len(data2) - 2
+	# calculate the critical value
+	cv = t.ppf(1.0 - alpha, df)
+	# calculate the p-value
+	p = (1.0 - t.cdf(abs(t_stat), df)) * 2.0
+	# return everything
+	return t_stat, df, cv, p
+
+
     def check_time(method,n):
         start_time = time.time()
         method(n)
         print("%s seconds" % (time.time() - start_time))
 
 
-x=NormalGen.Ziggurat(10)
-y=NormalGen.BoxMuller(1000)
-#NormalGen.show(x,40)
-#NormalGen.show(y,40)
-#NormalGen.check_shapiro(x)
-#NormalGen.check_shapiro(y)
-#NormalGen.check_mean_std(x)
-#NormalGen.check_mean_std(y)
-#NormalGen.check_time(NormalGen.CLT,1)
-#NormalGen.check_time(NormalGen.BoxMuller,1)
-#NormalGen.check_time(NormalGen.PolarReject,1)
-test_stat, pvalue = kstest(x, 'norm', args=(0, 1), N=len(x))
-print("N(0,1) vs. N(0, 1): KS=%.4f with p-value = %.4f." % (test_stat, pvalue))
-test_stat, pvalue = kstest(y[0], 'norm', args=(0, 1), N=1000)
-print("N(0,1) vs. N(0, 1): KS=%.4f with p-value = %.4f." % (test_stat, pvalue))
+x=NormalGen.BoxMuller(10000)
+NormalGen.check_chi2(x[0],10)
+print("******************************** \n")
+NormalGen.check_chi2(x[1],10)
+print("******************************** \n")
+NormalGen.check_tstudent(x[0],10)
+print("******************************** \n")
+NormalGen.check_tstudent(x[1],10)
+print("******************************** \n")
+NormalGen.check_kstest(x)
+print("********************************** \n")
+NormalGen.check_normtest(x)
+print("********************************** \n")
+NormalGen.check_shapiro(x)
