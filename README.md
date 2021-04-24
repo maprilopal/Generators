@@ -17,3 +17,16 @@ Four functions has been inversed:
 <img src="https://latex.codecogs.com/gif.latex?\Omega^{-1}(y)&space;\approx&space;\sqrt{-\frac{8}{5}&space;ln&space;\frac{1}{1-(2y-1)^{2}}}" title="\Omega^{-1}(y) \approx \sqrt{-\frac{8}{5} ln \frac{1}{1-(2y-1)^{2}}}" />
 4. Error function and Maclaurin series
 <img src="https://latex.codecogs.com/gif.latex?\Omega^{-1}(y)&space;=&space;\sqrt{2}&space;erf^{-1}(2y-1)" title="\Omega^{-1}(y) = \sqrt{2} erf^{-1}(2y-1)" />
+
+## Central Limit Theorem
+https://en.wikipedia.org/wiki/Normal_distribution#Generating_values_from_normal_distribution
+https://en.wikipedia.org/wiki/Central_limit_theorem
+
+## Box-Muller method
+https://en.wikipedia.org/wiki/Box–Muller_transform
+
+## Polar-Rejection method
+https://en.wikipedia.org/wiki/Marsaglia_polar_method
+
+## Ziggurat method
+https://en.wikipedia.org/wiki/Ziggurat_algorithm
